@@ -5,26 +5,28 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
-        <title>{{ config('app.name', 'Laravel') }}</title>
+        <title>{{ config('app.name', 'Gestión de Artesanos') }}</title>
 
-        <!-- Fonts -->
-        <link rel="preconnect" href="https://fonts.bunny.net">
-        <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
+        <!-- Fuente Inter (profesional) -->
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
 
-        <!-- Scripts -->
+        <!-- Scripts de Laravel -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
-    <body class="font-sans text-gray-900 antialiased">
-        <div class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0 bg-gray-100">
-            <div>
-                <a href="/">
-                    <x-application-logo class="w-20 h-20 fill-current text-gray-500" />
-                </a>
-            </div>
+    <body style="margin: 0; padding: 0; font-family: 'Inter', sans-serif; background-color: #0f172a;">
 
-            <div class="w-full sm:max-w-md mt-6 px-6 py-4 bg-white shadow-md overflow-hidden sm:rounded-lg">
+        <!-- Fondo azul oscuro con cuadrícula idéntico al de tu sistema -->
+        <div style="min-height: 100vh; display: flex; align-items: center; justify-content: center;
+                    background-image: radial-gradient(circle at 50% 0%, #1e3a8a 0%, transparent 70%),
+                                      linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                                      linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+                    background-size: 100% 100%, 40px 40px, 40px 40px;">
+
+            <!-- Aquí se carga el contenido (login, register, etc) -->
+            <div style="width: 100%; max-width: 450px; margin: 1rem;">
                 {{ $slot }}
             </div>
+
         </div>
     </body>
 </html>

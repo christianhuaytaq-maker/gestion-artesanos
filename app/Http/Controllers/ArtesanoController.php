@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Artesano;
+use App\Events\ArtesanoCreado; // <-- IMPORTAMOS EL EVENTO
 
 class ArtesanoController extends Controller
 {
@@ -49,7 +50,17 @@ class ArtesanoController extends Controller
             'especialidad' => 'nullable|max:100',
         ]);
 
-        Artesano::create($request->all());
+        // 1. Guardamos al artesano y lo asignamos a una variable
+        $artesano = Artesano::create($request->all());
+
+        // 2. DISPARAMOS EL EVENTO CON LOS DATOS COMPLETOS PARA LA TV
+        $nuevoTotal = Artesano::count();
+        $nombreCompleto = $artesano->nombres . ' ' . $artesano->apellidos;
+        $especialidad = $artesano->especialidad ?? 'Nuevo Artesano';
+
+        // Enviamos el total, el nombre y la especialidad
+        ArtesanoCreado::dispatch($nuevoTotal, $nombreCompleto, $especialidad);
+        // -----------------------------------------------------------
 
         return redirect()->route('artesanos.index')->with('success', 'Artesano agregado correctamente');
     }

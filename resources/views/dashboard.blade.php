@@ -51,11 +51,32 @@
 
     <div class="main-content">
         <div class="topbar">
-            <h4 class="mb-0 text-secondary">👋 Bienvenido, {{ Auth::user()->name }}</h4>
+            <h4 class="mb-0 text-secondary">👋 Bienvenido, {{ Auth::user()->nombre }}</h4>
             <span class="badge bg-{{ Auth::user()->rol === 'administrador' ? 'danger' : 'secondary' }} fs-6">
                 {{ ucfirst(Auth::user()->rol) }}
             </span>
         </div>
+
+        <!-- MENSAJE VERDE DE ÉXITO AL REGISTRARSE -->
+        @if (session('success'))
+            <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert" style="border-left: 5px solid #198754;">
+                <i class="bi bi-check-circle-fill me-2"></i> <strong>{{ session('success') }}</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        @endif
+
+        <!-- MENSAJES DE ERROR (ROJO) -->
+        @if ($errors->any())
+            <div class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert" style="border-left: 5px solid #dc3545;">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i> <strong>Por favor corrige los siguientes errores:</strong>
+                <ul class="mb-0 mt-2">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        @endif
 
         <div class="card shadow-sm border-0 mb-4">
             <div class="card-body p-4">
@@ -126,5 +147,7 @@
         </div>
     </div>
 
+    <!-- Script de Bootstrap para que funcione el botón de cerrar (la X) en las alertas -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

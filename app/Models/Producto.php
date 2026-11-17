@@ -17,7 +17,9 @@ class Producto extends Model
         'nombre',
         'descripcion',
         'precio',
+        'stock',        // <-- Agregado
         'categoria',
+        'imagen',       // <-- Agregado
     ];
 
     public function artesano()

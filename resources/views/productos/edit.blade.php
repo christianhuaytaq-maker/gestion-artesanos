@@ -1,97 +1,88 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <title>Editar Producto | Gestión Artesanos</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
-    <style>
-        body { background: #f4f6f9; font-family: 'Segoe UI', sans-serif; margin: 0; }
-        .sidebar { min-height: 100vh; background: #2c3e50; color: white; width: 250px; position: fixed; padding-top: 20px; }
-        .sidebar a { color: #bdc3c7; text-decoration: none; display: block; padding: 12px 20px; }
-        .sidebar a:hover, .sidebar a.active { background: #34495e; color: white; border-left: 4px solid #1abc9c; }
-        .sidebar h4 { padding-left: 20px; margin-bottom: 20px; color: #1abc9c; font-weight: bold; }
-        .main-content { margin-left: 250px; padding: 20px; }
-        .topbar { background: white; padding: 15px 20px; margin-bottom: 20px; border-radius: 8px; }
-    </style>
-</head>
-<body>
+<x-app-layout>
+    <x-slot name="header">
+        Editar Producto
+    </x-slot>
 
-    <div class="sidebar">
-        <h4><i class="bi bi-hammer"></i> Artesanos</h4>
-        <a href="{{ route('panel') }}"><i class="bi bi-speedometer2"></i> Panel</a>
-        <a href="{{ route('artesanos.index') }}"><i class="bi bi-people"></i> Artesanos</a>
-        <a href="{{ route('productos.index') }}" class="active"><i class="bi bi-box"></i> Productos</a>
-        <a href="{{ route('usuarios.index') }}"><i class="bi bi-person-badge"></i> Usuarios</a>
-        <hr class="text-secondary">
-        <a href="{{ url('/') }}"><i class="bi bi-box-arrow-left"></i> Salir</a>
-    </div>
+    <div style="padding: 2rem; background-color: #f8fafc; min-height: 100vh;">
+        <div style="background-color: white; padding: 2rem; border-radius: 0.75rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); max-width: 800px; margin: 0 auto;">
 
-    <div class="main-content">
-        <div class="topbar d-flex justify-content-between align-items-center">
-            <h4 class="mb-0 text-secondary">✏️ Editar Producto</h4>
-            <a href="{{ route('productos.index') }}" class="btn btn-outline-secondary">
-                <i class="bi bi-arrow-left"></i> Volver
-            </a>
-        </div>
+            <h2 style="font-size: 1.5rem; font-weight: 700; color: #1e293b; margin-bottom: 1.5rem;">Editar Información del Producto</h2>
 
-        @if($errors->any())
-            <div class="alert alert-danger">
-                <ul class="mb-0">
-                    @foreach($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
-            </div>
-        @endif
+            @if($errors->any())
+                <div style="background-color: #fee2e2; color: #991b1b; padding: 1rem; border-radius: 0.5rem; margin-bottom: 1.5rem;">
+                    <ul style="margin: 0; padding-left: 1.5rem;">
+                        @foreach($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
 
-        <div class="card shadow-sm border-0">
-            <div class="card-body p-4">
-                <form action="{{ route('productos.update', $producto->id) }}" method="POST">
-                    @csrf
-                    @method('PUT')
+            <form action="{{ url('/productos/actualizar/' . $producto->id) }}" method="POST" enctype="multipart/form-data">
+                @csrf
+                @method('PUT')
 
-                    <div class="row g-3">
-                        <div class="col-md-6">
-                            <label class="form-label fw-bold">Artesano *</label>
-                            <select name="artesano_id" class="form-select" required>
-                                @foreach($artesanos as $artesano)
-                                    <option value="{{ $artesano->id }}" {{ $producto->artesano_id == $artesano->id ? 'selected' : '' }}>
-                                        {{ $artesano->nombres }} {{ $artesano->apellidos }}
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label fw-bold">Nombre *</label>
-                            <input type="text" name="nombre" class="form-control" required value="{{ $producto->nombre }}">
-                        </div>
-                        <div class="col-md-12">
-                            <label class="form-label fw-bold">Descripción</label>
-                            <textarea name="descripcion" class="form-control" rows="3">{{ $producto->descripcion }}</textarea>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label fw-bold">Precio (S/) *</label>
-                            <input type="number" name="precio" class="form-control" step="0.01" min="0" required value="{{ $producto->precio }}">
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label fw-bold">Categoría *</label>
-                            <input type="text" name="categoria" class="form-control" required value="{{ $producto->categoria }}">
-                        </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+
+                    <div>
+                        <label style="display: block; font-size: 0.875rem; font-weight: 600; color: #475569; margin-bottom: 0.5rem;">Artesano *</label>
+                        <select name="artesano_id" required style="width: 100%; padding: 0.6rem; border: 1px solid #cbd5e1; border-radius: 0.5rem; background-color: white;">
+                            @foreach($artesanos as $artesano)
+                                <option value="{{ $artesano->id }}" {{ $producto->artesano_id == $artesano->id ? 'selected' : '' }}>
+                                    {{ $artesano->nombres }} {{ $artesano->apellidos }}
+                                </option>
+                            @endforeach
+                        </select>
                     </div>
 
-                    <hr class="my-4">
-
-                    <div class="d-flex gap-2">
-                        <button type="submit" class="btn btn-warning">
-                            <i class="bi bi-save"></i> Actualizar
-                        </button>
-                        <a href="{{ route('productos.index') }}" class="btn btn-outline-secondary">Cancelar</a>
+                    <div>
+                        <label style="display: block; font-size: 0.875rem; font-weight: 600; color: #475569; margin-bottom: 0.5rem;">Nombre del Producto *</label>
+                        <input type="text" name="nombre" value="{{ old('nombre', $producto->nombre) }}" required style="width: 100%; padding: 0.6rem; border: 1px solid #cbd5e1; border-radius: 0.5rem;">
                     </div>
-                </form>
-            </div>
+
+                    <div style="grid-column: span 2;">
+                        <label style="display: block; font-size: 0.875rem; font-weight: 600; color: #475569; margin-bottom: 0.5rem;">Descripción</label>
+                        <textarea name="descripcion" rows="3" style="width: 100%; padding: 0.6rem; border: 1px solid #cbd5e1; border-radius: 0.5rem; resize: vertical;">{{ old('descripcion', $producto->descripcion) }}</textarea>
+                    </div>
+
+                    <div>
+                        <label style="display: block; font-size: 0.875rem; font-weight: 600; color: #475569; margin-bottom: 0.5rem;">Precio (S/) *</label>
+                        <input type="number" name="precio" step="0.01" min="0" value="{{ old('precio', $producto->precio) }}" required style="width: 100%; padding: 0.6rem; border: 1px solid #cbd5e1; border-radius: 0.5rem;">
+                    </div>
+
+                    <div>
+                        <label style="display: block; font-size: 0.875rem; font-weight: 600; color: #475569; margin-bottom: 0.5rem;">Categoría *</label>
+                        <input type="text" name="categoria" value="{{ old('categoria', $producto->categoria) }}" required style="width: 100%; padding: 0.6rem; border: 1px solid #cbd5e1; border-radius: 0.5rem;">
+                    </div>
+
+                    <div>
+                        <label style="display: block; font-size: 0.875rem; font-weight: 600; color: #475569; margin-bottom: 0.5rem;">Stock Disponible *</label>
+                        <input type="number" name="stock" min="0" value="{{ old('stock', $producto->stock) }}" required style="width: 100%; padding: 0.6rem; border: 1px solid #cbd5e1; border-radius: 0.5rem;">
+                    </div>
+
+                    <div>
+                        <label style="display: block; font-size: 0.875rem; font-weight: 600; color: #475569; margin-bottom: 0.5rem;">Imagen del Producto (Opcional)</label>
+
+                        @if($producto->imagen)
+                            <div style="margin-bottom: 0.5rem;">
+                                <img src="{{ $producto->imagen }}" alt="Imagen actual" style="height: 80px; border-radius: 0.375rem; object-fit: cover; border: 1px solid #cbd5e1;">
+                            </div>
+                        @endif
+
+                        <input type="file" name="imagen" accept="image/*" style="width: 100%; padding: 0.5rem; border: 1px solid #cbd5e1; border-radius: 0.5rem; background-color: #f8fafc;">
+                        <p style="font-size: 0.75rem; color: #94a3b8; margin-top: 0.25rem;">Si no seleccionas una nueva, se mantendrá la actual.</p>
+                    </div>
+                </div>
+
+                <div style="margin-top: 2rem; display: flex; gap: 1rem;">
+                    <button type="submit" style="background-color: #f59e0b; color: white; padding: 0.6rem 1.5rem; border: none; border-radius: 0.5rem; font-weight: bold; cursor: pointer;">
+                        Actualizar Producto
+                    </button>
+                    <a href="{{ url('/productos') }}" style="background-color: #f1f5f9; color: #475569; padding: 0.6rem 1.5rem; border: 1px solid #cbd5e1; border-radius: 0.5rem; font-weight: bold; text-decoration: none;">
+                        Cancelar
+                    </a>
+                </div>
+            </form>
         </div>
     </div>
-
-</body>
-</html>
+</x-app-layout>

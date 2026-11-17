@@ -6,16 +6,20 @@ use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens; // 👈 1. Importamos HasApiTokens
 
-class User extends Authenticatable
+class User extends Authenticatable implements MustVerifyEmail
 {
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, HasApiTokens; // 👈 2. Lo añadimos aquí
+
+    protected $table = 'usuarios';
 
     protected $fillable = [
-        'name',
+        'nombre',
         'email',
         'password',
         'rol',
+        'password_updates',
     ];
 
     protected $hidden = [
@@ -27,17 +31,16 @@ class User extends Authenticatable
     {
         return [
             'email_verified_at' => 'datetime',
-            'password' => 'hashed',
         ];
     }
 
     public function esAdmin(): bool
     {
-        return $this->rol === 'administrador';
+        return $this->rol === 'admin';
     }
 
-    public function esCliente(): bool
+    public function sendPasswordResetNotification($token)
     {
-        return $this->rol === 'cliente';
+        $this->notify(new \App\Notifications\ResetPasswordNotification($token));
     }
 }

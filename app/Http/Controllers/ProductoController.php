@@ -11,20 +11,14 @@ class ProductoController extends Controller
     public function index(Request $request)
     {
         $query = Producto::with('artesano');
-
-        // Búsqueda por nombre
         if ($request->has('buscar') && $request->buscar != '') {
             $query->where('nombre', 'LIKE', '%' . $request->buscar . '%');
         }
-
-        // Filtro por categoría
         if ($request->has('categoria') && $request->categoria != '') {
             $query->where('categoria', $request->categoria);
         }
-
         $productos = $query->get();
         $categorias = Producto::select('categoria')->distinct()->pluck('categoria');
-
         return view('productos.index', compact('productos', 'categorias'));
     }
 
@@ -42,9 +36,23 @@ class ProductoController extends Controller
             'descripcion' => 'nullable',
             'precio' => 'required|numeric|min:0',
             'categoria' => 'required|max:100',
+            'stock' => 'required|integer|min:0',
+            'imagen' => 'nullable|image|mimes:jpeg,png,jpg,webp,gif,svg|max:10240',
         ]);
 
-        Producto::create($request->all());
+        $data = $request->except('imagen');
+
+        // Guardamos el producto primero
+        $producto = Producto::create($data);
+
+        // Si se subió una imagen, la procesamos y actualizamos el producto
+        if ($request->hasFile('imagen') && $request->file('imagen')->isValid()) {
+            $imagen = $request->file('imagen');
+            $imagenBase64 = base64_encode(file_get_contents($imagen->getRealPath()));
+            $mime = $imagen->getClientMimeType();
+            $producto->imagen = 'data:' . $mime . ';base64,' . $imagenBase64;
+            $producto->save();
+        }
 
         return redirect()->route('productos.index')->with('success', 'Producto agregado correctamente');
     }
@@ -64,10 +72,23 @@ class ProductoController extends Controller
             'descripcion' => 'nullable',
             'precio' => 'required|numeric|min:0',
             'categoria' => 'required|max:100',
+            'stock' => 'required|integer|min:0',
+            'imagen' => 'nullable|image|mimes:jpeg,png,jpg,webp,gif,svg|max:10240',
         ]);
 
         $producto = Producto::findOrFail($id);
-        $producto->update($request->all());
+
+        // Actualizamos los datos excepto la imagen
+        $producto->update($request->except('imagen'));
+
+        // Si se sube una nueva imagen, la convertimos a Base64
+        if ($request->hasFile('imagen') && $request->file('imagen')->isValid()) {
+            $imagen = $request->file('imagen');
+            $imagenBase64 = base64_encode(file_get_contents($imagen->getRealPath()));
+            $mime = $imagen->getClientMimeType();
+            $producto->imagen = 'data:' . $mime . ';base64,' . $imagenBase64;
+            $producto->save();
+        }
 
         return redirect()->route('productos.index')->with('success', 'Producto actualizado correctamente');
     }
@@ -76,7 +97,12 @@ class ProductoController extends Controller
     {
         $producto = Producto::findOrFail($id);
         $producto->delete();
-
         return redirect()->route('productos.index')->with('success', 'Producto eliminado correctamente');
+    }
+
+    public function catalogo()
+    {
+        $productos = Producto::with('artesano')->get();
+        return view('catalogo', compact('productos'));
     }
 }

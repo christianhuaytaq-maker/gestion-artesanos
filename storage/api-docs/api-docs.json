@@ -1,0 +1,172 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "API de Gestión de Artesanos",
+        "description": "Documentación oficial de la API para el sistema de gestión de artesanos",
+        "version": "1.0.0"
+    },
+    "servers": [
+        {
+            "url": "http://127.0.0.1:8000",
+            "description": "Servidor Local"
+        }
+    ],
+    "paths": {
+        "/api/artesanos": {
+            "get": {
+                "tags": [
+                    "Artesanos"
+                ],
+                "summary": "Obtener todos los artesanos",
+                "operationId": "836cc7981e1ff529efacdb7080915a41",
+                "responses": {
+                    "200": {
+                        "description": "Lista de artesanos"
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Artesanos"
+                ],
+                "summary": "Crear un nuevo artesano",
+                "operationId": "b96950695662764d607f1d1fdb803d3a",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "dni",
+                                    "nombres",
+                                    "apellidos"
+                                ],
+                                "properties": {
+                                    "dni": {
+                                        "type": "string",
+                                        "example": "12345678"
+                                    },
+                                    "nombres": {
+                                        "type": "string",
+                                        "example": "Juan"
+                                    },
+                                    "apellidos": {
+                                        "type": "string",
+                                        "example": "Perez"
+                                    },
+                                    "telefono": {
+                                        "type": "string",
+                                        "example": "987654321"
+                                    },
+                                    "especialidad": {
+                                        "type": "string",
+                                        "example": "Cerámica"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Artesano creado"
+                    }
+                }
+            }
+        },
+        "/api/artesanos/{id}": {
+            "get": {
+                "tags": [
+                    "Artesanos"
+                ],
+                "summary": "Obtener un artesano por ID",
+                "operationId": "1ff4be214ca51174fe2e604e7225c8a8",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Datos del artesano"
+                    },
+                    "404": {
+                        "description": "Artesano no encontrado"
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "Artesanos"
+                ],
+                "summary": "Actualizar un artesano",
+                "operationId": "e32650bbe745602fa483b89a71a10315",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "nombres": {
+                                        "type": "string",
+                                        "example": "Juan Editado"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Artesano actualizado"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Artesanos"
+                ],
+                "summary": "Eliminar un artesano",
+                "operationId": "fc3c77ae854a5d0287fc77652204f6c1",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Artesano eliminado"
+                    }
+                }
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "Artesanos",
+            "description": "Artesanos"
+        }
+    ]
+}

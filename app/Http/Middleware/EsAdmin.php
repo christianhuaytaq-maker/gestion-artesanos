@@ -10,8 +10,14 @@ class EsAdmin
 {
     public function handle(Request $request, Closure $next): Response
     {
-        if (!auth()->check() || !auth()->user()->esAdmin()) {
-            return redirect('/dashboard')->with('error', 'No tienes permiso para acceder a esta sección.');
+        // Si no está logueado, al login
+        if (!auth()->check()) {
+            return redirect()->route('login');
+        }
+
+        // Si está logueado pero NO es admin, lo mandamos al catálogo con un error
+        if (!auth()->user()->esAdmin()) {
+            return redirect()->route('catalogo')->with('error', 'No tienes permiso para acceder a esta sección.');
         }
 
         return $next($request);

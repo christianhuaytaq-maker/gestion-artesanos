@@ -5,49 +5,80 @@ use App\Http\Controllers\PanelController;
 use App\Http\Controllers\ArtesanoController;
 use App\Http\Controllers\ProductoController;
 use App\Http\Controllers\UsuarioController;
+use App\Http\Controllers\VentaController;
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\VerificationCodeController;
+use App\Http\Controllers\LanguageController; // <-- IMPORTAMOS EL CONTROLADOR DE IDIOMA
 
+// 1. Ruta de bienvenida (pública)
 Route::get('/', function () {
-    return view('bienvenida');
+    return view('welcome');
 })->name('bienvenida');
 
-// Todas las rutas requieren autenticación
+// =========================================================
+// 🌎 RUTA PARA CAMBIAR EL IDIOMA (PERSISTENTE)
+// =========================================================
+Route::get('lang/{locale}', [LanguageController::class, 'switchLang'])->name('lang.switch');
+
+// 2. CARGAMOS LAS RUTAS DE AUTENTICACIÓN (Públicas)
+require __DIR__.'/auth.php';
+
+// 3. RUTAS PARA USUARIOS LOGUEADOS PERO QUE AÚN NO ESTÁN VERIFICADOS
 Route::middleware(['auth'])->group(function () {
-
-    Route::get('/dashboard', function () {
-        return view('dashboard');
-    })->name('dashboard');
-
-    // Catálogo (para clientes)
-    Route::get('/catalogo', [ProductoController::class, 'catalogo'])->name('catalogo');
-
-    // SOLO administradores
-    Route::middleware(['esAdmin'])->group(function () {
-
-        // Panel
-        Route::get('/panel', [PanelController::class, 'index'])->name('panel');
-
-        // Artesanos
-        Route::get('/artesanos', [ArtesanoController::class, 'index'])->name('artesanos.index');
-        Route::get('/artesanos/crear', [ArtesanoController::class, 'create'])->name('artesanos.create');
-        Route::post('/artesanos/guardar', [ArtesanoController::class, 'store'])->name('artesanos.store');
-        Route::get('/artesanos/editar/{id}', [ArtesanoController::class, 'edit'])->name('artesanos.edit');
-        Route::put('/artesanos/actualizar/{id}', [ArtesanoController::class, 'update'])->name('artesanos.update');
-        Route::delete('/artesanos/eliminar/{id}', [ArtesanoController::class, 'destroy'])->name('artesanos.destroy');
-
-        // Productos
-        Route::get('/productos', [ProductoController::class, 'index'])->name('productos.index');
-        Route::get('/productos/crear', [ProductoController::class, 'create'])->name('productos.create');
-        Route::post('/productos/guardar', [ProductoController::class, 'store'])->name('productos.store');
-        Route::get('/productos/editar/{id}', [ProductoController::class, 'edit'])->name('productos.edit');
-        Route::put('/productos/actualizar/{id}', [ProductoController::class, 'update'])->name('productos.update');
-        Route::delete('/productos/eliminar/{id}', [ProductoController::class, 'destroy'])->name('productos.destroy');
-
-        // Usuarios
-        Route::get('/usuarios', [UsuarioController::class, 'index'])->name('usuarios.index');
-        Route::get('/usuarios/editar/{id}', [UsuarioController::class, 'edit'])->name('usuarios.edit');
-        Route::put('/usuarios/actualizar/{id}', [UsuarioController::class, 'update'])->name('usuarios.update');
-        Route::delete('/usuarios/eliminar/{id}', [UsuarioController::class, 'destroy'])->name('usuarios.destroy');
-    });
+    Route::post('/verify-code/generate', [VerificationCodeController::class, 'generate'])->name('verify.code.generate');
+    Route::post('/verify-code/check', [VerificationCodeController::class, 'verify'])->name('verify.code.check');
 });
 
-require __DIR__.'/auth.php';
+// 4. GRUPO PROTEGIDO PARA USUARIOS LOGUEADOS Y VERIFICADOS
+Route::middleware(['auth', 'verified'])->group(function () {
+
+    // Redirección general
+    Route::get('/dashboard', function () {
+        if (auth()->user()->esAdmin()) {
+            return redirect()->route('panel');
+        }
+        return redirect()->route('catalogo');
+    })->name('dashboard');
+
+    // Perfil
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    // Catálogo y ventas (Rutas personalizadas que NO son un CRUD completo)
+    Route::get('/catalogo', [ProductoController::class, 'catalogo'])->name('catalogo');
+    Route::post('/comprar', [VentaController::class, 'store'])->name('ventas.store');
+
+    // SOLO ADMINISTRADORES
+    Route::middleware(['esAdmin'])->group(function () {
+
+        Route::get('/panel', [PanelController::class, 'index'])->name('panel');
+
+        // =========================================================
+        // ✨ RUTAS DE RECURSOS (CRUD) ✨
+        // =========================================================
+
+        // Artesanos
+        Route::resource('artesanos', ArtesanoController::class);
+
+        // Productos
+        Route::resource('productos', ProductoController::class);
+
+        // Usuarios
+        Route::resource('usuarios', UsuarioController::class);
+
+        // Ventas
+        Route::resource('ventas', VentaController::class)->only(['index']);
+
+        // Ruta personalizada extra para enviar recuperación
+        Route::post('/usuarios/enviar-recuperacion/{id}', [UsuarioController::class, 'enviarRecuperacion'])->name('usuarios.enviarRecuperacion');
+
+        // =========================================================
+        // 🔔 RUTA PARA LA PANTALLA DEL SOCKET (TV)
+        // =========================================================
+        Route::get('/pantalla-socket', function () {
+            return view('socket.pantalla');
+        })->name('socket.pantalla');
+
+    });
+});

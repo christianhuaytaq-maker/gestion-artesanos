@@ -1,125 +1,70 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <title>Usuarios | Gestión Artesanos</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
-    <style>
-        body { background: #f4f6f9; font-family: 'Segoe UI', sans-serif; margin: 0; }
-        .sidebar { min-height: 100vh; background: #2c3e50; color: white; width: 250px; position: fixed; padding-top: 20px; }
-        .sidebar a { color: #bdc3c7; text-decoration: none; display: block; padding: 12px 20px; transition: 0.3s; }
-        .sidebar a:hover, .sidebar a.active { background: #34495e; color: white; border-left: 4px solid #1abc9c; }
-        .sidebar h4 { padding-left: 20px; margin-bottom: 20px; color: #1abc9c; font-weight: bold; }
-        .main-content { margin-left: 250px; padding: 20px; }
-        .topbar { background: white; padding: 15px 20px; margin-bottom: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-    </style>
-</head>
-<body>
+<x-app-layout>
+    <x-slot name="header">
+        {{ __('usuarios.titulo') }}
+    </x-slot>
 
-    <div class="sidebar">
-        <h4><i class="bi bi-hammer"></i> Artesanos</h4>
-        <a href="{{ route('panel') }}"><i class="bi bi-speedometer2"></i> Panel</a>
-        <a href="{{ route('artesanos.index') }}"><i class="bi bi-people"></i> Artesanos</a>
-        <a href="{{ route('productos.index') }}"><i class="bi bi-box"></i> Productos</a>
-        <a href="{{ route('usuarios.index') }}" class="active"><i class="bi bi-person-badge"></i> Usuarios</a>
-        <hr class="text-secondary">
-        <a href="{{ url('/') }}"><i class="bi bi-box-arrow-left"></i> Salir</a>
+    <!-- Contenedor del Buscador -->
+    <div style="background: white; padding: 1.5rem; border-radius: 0.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 1.5rem;">
+        <form action="{{ route('usuarios.index') }}" method="GET" style="display: flex; gap: 1rem; align-items: flex-end; flex-wrap: wrap;">
+            <div style="flex: 1; min-width: 200px;">
+                <label style="display: block; font-size: 0.875rem; color: #374151; margin-bottom: 0.5rem; font-weight: bold;">{{ __('usuarios.buscar') }}</label>
+                <input type="text" name="buscar" placeholder="{{ __('usuarios.buscar_placeholder') }}" value="{{ request('buscar') }}" style="width: 100%; padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 0.375rem; outline: none;">
+            </div>
+            <div style="flex: 1; min-width: 200px;">
+                <label style="display: block; font-size: 0.875rem; color: #374151; margin-bottom: 0.5rem; font-weight: bold;">{{ __('usuarios.rol') }}</label>
+                <select name="rol" style="width: 100%; padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 0.375rem; outline: none;">
+                    <option value="">{{ __('usuarios.todos_roles') }}</option>
+                    <option value="admin" {{ request('rol') == 'admin' ? 'selected' : '' }}>{{ __('usuarios.rol_admin') }}</option>
+                    <option value="cliente" {{ request('rol') == 'cliente' ? 'selected' : '' }}>{{ __('usuarios.rol_cliente') }}</option>
+                </select>
+            </div>
+            <div style="display: flex; gap: 0.5rem;">
+                <button type="submit" style="background-color: #2563eb; color: white; padding: 0.5rem 1rem; border: none; border-radius: 0.375rem; cursor: pointer; font-weight: bold;">{{ __('usuarios.btn_buscar') }}</button>
+                <a href="{{ route('usuarios.create') }}" style="background-color: #059669; color: white; padding: 0.5rem 1rem; border-radius: 0.375rem; text-decoration: none; font-weight: bold; display: flex; align-items: center;">+ {{ __('usuarios.btn_nuevo') }}</a>
+            </div>
+        </form>
     </div>
 
-    <div class="main-content">
-        <div class="topbar d-flex justify-content-between align-items-center">
-            <h4 class="mb-0 text-secondary">👤 Lista de Usuarios ({{ $usuarios->count() }})</h4>
-            <a href="{{ route('usuarios.create') }}" class="btn btn-success">
-                <i class="bi bi-plus-circle"></i> Agregar Nuevo Usuario
-            </a>
-        </div>
-
-        @if(session('success'))
-            <div class="alert alert-success alert-dismissible fade show">
-                <i class="bi bi-check-circle"></i> {{ session('success') }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-        @endif
-
-        <div class="card shadow-sm border-0 mb-4">
-            <div class="card-body">
-                <form action="{{ route('usuarios.index') }}" method="GET" class="row g-3 align-items-end">
-                    <div class="col-md-5">
-                        <label class="form-label fw-bold"><i class="bi bi-search"></i> Buscar</label>
-                        <input type="text" name="buscar" class="form-control" placeholder="Nombre o email..." value="{{ request('buscar') }}">
-                    </div>
-                    <div class="col-md-4">
-                        <label class="form-label fw-bold"><i class="bi bi-funnel"></i> Filtrar por Rol</label>
-                        <select name="rol" class="form-select">
-                            <option value="">Todos los roles</option>
-                            <option value="administrador" {{ request('rol') == 'administrador' ? 'selected' : '' }}>Administrador</option>
-                            <option value="usuario" {{ request('rol') == 'usuario' ? 'selected' : '' }}>Usuario</option>
-                        </select>
-                    </div>
-                    <div class="col-md-3 d-flex gap-2">
-                        <button type="submit" class="btn btn-primary w-100">
-                            <i class="bi bi-search"></i> Buscar
-                        </button>
-                        <a href="{{ route('usuarios.index') }}" class="btn btn-outline-secondary">
-                            <i class="bi bi-x-circle"></i>
-                        </a>
-                    </div>
-                </form>
-            </div>
-        </div>
-
-        <div class="card shadow-sm border-0">
-            <div class="card-body">
-                @if($usuarios->count() > 0)
-                    <table class="table table-hover align-middle">
-                        <thead class="table-light">
-                            <tr>
-                                <th>ID</th>
-                                <th>Nombre</th>
-                                <th>Email</th>
-                                <th>Rol</th>
-                                <th>Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach($usuarios as $usuario)
-                                <tr>
-                                    <td>{{ $usuario->id }}</td>
-                                    <td>{{ $usuario->nombre }}</td>
-                                    <td>{{ $usuario->email }}</td>
-                                    <td>
-                                        @if($usuario->rol == 'administrador')
-                                            <span class="badge bg-danger">Administrador</span>
-                                        @else
-                                            <span class="badge bg-secondary">Usuario</span>
-                                        @endif
-                                    </td>
-                                    <td>
-                                        <a href="{{ route('usuarios.edit', $usuario->id) }}" class="btn btn-sm btn-warning">
-                                            <i class="bi bi-pencil"></i>
-                                        </a>
-                                        <form action="{{ route('usuarios.destroy', $usuario->id) }}" method="POST" style="display:inline;" onsubmit="return confirm('¿Eliminar este usuario?')">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button class="btn btn-sm btn-danger">
-                                                <i class="bi bi-trash"></i>
-                                            </button>
-                                        </form>
-                                    </td>
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                @else
-                    <div class="alert alert-warning text-center">
-                        <i class="bi bi-search"></i> No se encontraron usuarios.
-                    </div>
-                @endif
-            </div>
-        </div>
+    <!-- Tabla de Datos -->
+    <div style="background: white; border-radius: 0.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); overflow: hidden;">
+        <table style="width: 100%; border-collapse: collapse; text-align: left;">
+            <thead style="background-color: #f9fafb; border-bottom: 1px solid #e5e7eb;">
+                <tr>
+                    <th style="padding: 1rem; font-size: 0.75rem; color: #6b7280; text-transform: uppercase;">{{ __('usuarios.id') }}</th>
+                    <th style="padding: 1rem; font-size: 0.75rem; color: #6b7280; text-transform: uppercase;">{{ __('usuarios.nombre') }}</th>
+                    <th style="padding: 1rem; font-size: 0.75rem; color: #6b7280; text-transform: uppercase;">{{ __('usuarios.email') }}</th>
+                    <th style="padding: 1rem; font-size: 0.75rem; color: #6b7280; text-transform: uppercase;">{{ __('usuarios.rol') }}</th>
+                    <th style="padding: 1rem; font-size: 0.75rem; color: #6b7280; text-transform: uppercase;">{{ __('usuarios.acciones') }}</th>
+                </tr>
+            </thead>
+            <tbody>
+                @forelse($usuarios as $usuario)
+                <tr style="border-bottom: 1px solid #f3f4f6;">
+                    <td style="padding: 1rem; color: #4b5563;">{{ $usuario->id }}</td>
+                    <td style="padding: 1rem; color: #111827; font-weight: 500;">{{ $usuario->name }}</td>
+                    <td style="padding: 1rem; color: #4b5563;">{{ $usuario->email }}</td>
+                    <td style="padding: 1rem;">
+                        <span style="background-color: #ecfeff; color: #155e75; padding: 0.25rem 0.5rem; border-radius: 0.25rem; font-size: 0.75rem; font-weight: bold;">
+                            {{ $usuario->rol }}
+                        </span>
+                    </td>
+                    <td style="padding: 1rem;">
+                        <div style="display: flex; gap: 0.5rem;">
+                            <a href="{{ route('usuarios.edit', $usuario->id) }}" style="background-color: #facc15; color: white; padding: 0.25rem 0.5rem; border-radius: 0.25rem; text-decoration: none;">✏️</a>
+                            <form action="{{ route('usuarios.destroy', $usuario->id) }}" method="POST" onsubmit="return confirm('{{ __('usuarios.confirmar_eliminar') }}')">
+                                @csrf
+                                @method('DELETE')
+                                <button style="background-color: #ef4444; color: white; padding: 0.25rem 0.5rem; border-radius: 0.25rem; border: none; cursor: pointer;">🗑️</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                @empty
+                <tr>
+                    <td colspan="5" style="padding: 2rem; text-align: center; color: #6b7280;">{{ __('usuarios.sin_registros') }}</td>
+                </tr>
+                @endforelse
+            </tbody>
+        </table>
     </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+</x-app-layout>

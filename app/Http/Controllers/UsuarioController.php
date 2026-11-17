@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Usuario;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class UsuarioController extends Controller
 {
@@ -12,7 +15,6 @@ class UsuarioController extends Controller
     {
         $query = Usuario::query();
 
-        // Búsqueda por nombre o email
         if ($request->has('buscar') && $request->buscar != '') {
             $query->where(function($q) use ($request) {
                 $q->where('nombre', 'LIKE', '%' . $request->buscar . '%')
@@ -20,7 +22,6 @@ class UsuarioController extends Controller
             });
         }
 
-        // Filtro por rol
         if ($request->has('rol') && $request->rol != '') {
             $query->where('rol', $request->rol);
         }
@@ -89,5 +90,24 @@ class UsuarioController extends Controller
         $usuario->delete();
 
         return redirect()->route('usuarios.index')->with('success', 'Usuario eliminado correctamente');
+    }
+
+    // NUEVA FUNCIÓN: Enviar correo de recuperación al usuario
+    public function enviarRecuperacion($id)
+    {
+        $usuario = Usuario::findOrFail($id);
+
+        try {
+            // Laravel busca al usuario por su email y envía el correo de recuperación
+            $status = Password::sendResetLink(['email' => $usuario->email]);
+
+            if ($status == Password::RESET_LINK_SENT) {
+                return redirect()->route('usuarios.index')->with('success', 'Se ha enviado un correo de recuperación a: ' . $usuario->email);
+            } else {
+                return redirect()->route('usuarios.index')->with('error', 'No se pudo enviar el correo. Inténtalo de nuevo.');
+            }
+        } catch (\Exception $e) {
+            return redirect()->route('usuarios.index')->with('error', 'Error al enviar el correo: ' . $e->getMessage());
+        }
     }
 }

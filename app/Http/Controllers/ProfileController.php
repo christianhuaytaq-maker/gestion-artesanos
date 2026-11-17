@@ -12,7 +12,7 @@ use Illuminate\View\View;
 class ProfileController extends Controller
 {
     /**
-     * Display the user's profile form.
+     * Muestra la vista del perfil.
      */
     public function edit(Request $request): View
     {
@@ -22,7 +22,7 @@ class ProfileController extends Controller
     }
 
     /**
-     * Update the user's profile information.
+     * Actualiza la información del perfil.
      */
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
@@ -38,7 +38,7 @@ class ProfileController extends Controller
     }
 
     /**
-     * Delete the user's account.
+     * Elimina la cuenta del usuario aplicando reglas de negocio.
      */
     public function destroy(Request $request): RedirectResponse
     {
@@ -48,13 +48,15 @@ class ProfileController extends Controller
 
         $user = $request->user();
 
+        if ($user->esAdmin()) {
+            return Redirect::route('profile.edit')->with('error', 'Por motivos de seguridad, un administrador no puede eliminar su propia cuenta desde el perfil.');
+        }
+
         Auth::logout();
-
         $user->delete();
-
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return Redirect::to('/');
+        return Redirect::to('/')->with('status', 'Tu cuenta ha sido eliminada exitosamente.');
     }
 }

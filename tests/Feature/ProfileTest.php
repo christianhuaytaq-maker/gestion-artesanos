@@ -25,10 +25,11 @@ class ProfileTest extends TestCase
     {
         $user = User::factory()->create();
 
+        // SOLUCIÓN: Usamos 'nombre' en lugar de 'name'
         $response = $this
             ->actingAs($user)
             ->patch('/profile', [
-                'name' => 'Test User',
+                'nombre' => 'Test User',
                 'email' => 'test@example.com',
             ]);
 
@@ -38,7 +39,8 @@ class ProfileTest extends TestCase
 
         $user->refresh();
 
-        $this->assertSame('Test User', $user->name);
+        // SOLUCIÓN: Verificamos 'nombre' en lugar de 'name'
+        $this->assertSame('Test User', $user->nombre);
         $this->assertSame('test@example.com', $user->email);
         $this->assertNull($user->email_verified_at);
     }
@@ -47,10 +49,11 @@ class ProfileTest extends TestCase
     {
         $user = User::factory()->create();
 
+        // SOLUCIÓN: Usamos 'nombre' en lugar de 'name'
         $response = $this
             ->actingAs($user)
             ->patch('/profile', [
-                'name' => 'Test User',
+                'nombre' => 'Test User',
                 'email' => $user->email,
             ]);
 

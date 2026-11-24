@@ -8,24 +8,24 @@ use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class ArtesanoCreado implements ShouldBroadcast
+class ArtesanoActualizado implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    public $nuevoTotal;
-    public $nombreArtesano;
-    public $especialidad;
+    public string $usuario;
 
-    // Recibimos los datos que queremos mostrar en la TV
-    public function __construct($nuevoTotal, $nombreArtesano, $especialidad)
+    public function __construct(string $usuario = 'Usuario')
     {
-        $this->nuevoTotal = $nuevoTotal;
-        $this->nombreArtesano = $nombreArtesano;
-        $this->especialidad = $especialidad;
+        $this->usuario = $usuario;
     }
 
-    public function broadcastOn(): array
+    public function broadcastOn(): Channel
     {
-        return [new Channel('panel')];
+        return new Channel('artesanos');
+    }
+
+    public function broadcastAs(): string
+    {
+        return 'ArtesanoActualizado';
     }
 }

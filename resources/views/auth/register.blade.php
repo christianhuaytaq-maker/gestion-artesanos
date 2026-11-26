@@ -488,6 +488,29 @@
             <h1 data-i18n="title">Crear una Cuenta</h1>
             <p class="form-subtitle" data-i18n="subtitle">Regístrate para poder acceder al sistema de gestión.</p>
 
+            {{-- 🔴 BLOQUE DE ERRORES GLOBAL: te muestra por qué falla el registro --}}
+            @if ($errors->any())
+                <div style="background:#FEF2F2;border:1px solid #FECACA;color:#991B1B;
+                            border-radius:12px;padding:0.7rem 0.9rem;margin-bottom:1rem;
+                            font-size:0.82rem;font-weight:600;line-height:1.45;">
+                    <strong>Revisa lo siguiente:</strong>
+                    <ul style="margin:0.35rem 0 0 1rem;padding:0;">
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+
+            {{-- Mensaje de éxito si viene del controlador --}}
+            @if (session('success'))
+                <div style="background:#ECFDF5;border:1px solid #A7F3D0;color:#065F46;
+                            border-radius:12px;padding:0.7rem 0.9rem;margin-bottom:1rem;
+                            font-size:0.82rem;font-weight:700;">
+                    {{ session('success') }}
+                </div>
+            @endif
+
             <form method="POST" action="{{ route('register') }}">
                 @csrf
 

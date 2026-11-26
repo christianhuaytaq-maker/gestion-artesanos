@@ -29,27 +29,27 @@ class RegisteredUserController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
+        // Validación alineada con los "name" del formulario Blade
         $request->validate([
-            'nombre' => ['required', 'string', 'max:255'],
-            // Se eliminó 'lowercase' para permitir mayúsculas
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:usuarios,email'],
+            'name'     => ['required', 'string', 'max:255'],
+            'email'    => ['required', 'string', 'email', 'max:255', 'unique:usuarios,email'],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
+        // Creamos el usuario mapeando "name" del form -> "nombre" de la BD
         $user = User::create([
-            'nombre' => $request->nombre,
-            // Convertimos el email a minúsculas antes de guardarlo
-            'email' => strtolower($request->email),
-            // Encriptamos la contraseña correctamente
-            'password' => Hash::make($request->password),
-            'rol' => 'usuario', // Por defecto se registran como "usuario"
+            'nombre'            => $request->name,
+            'email'             => strtolower($request->email),
+            'password'          => Hash::make($request->password),
+            'rol'               => 'usuario',
+            'password_updates'  => 0, // evita fallo si la columna no es nullable
         ]);
 
         event(new Registered($user));
 
         Auth::login($user);
 
-        // Redirigimos con el mensaje de éxito (el "verdecito")
-        return redirect()->route('dashboard')->with('success', '¡Registro exitoso! Ya eres parte del sistema.');
+        return redirect()->route('dashboard')
+            ->with('success', '¡Registro exitoso! Ya eres parte del sistema.');
     }
 }
